@@ -1,34 +1,32 @@
 <?php
-
 $result = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
-    $num1 = $_POST["num1"];
-    $num2 = $_POST["num2"];
-    $operation = $_POST["operation"];
+    $num1 = $_POST['num1'] ?? "";
+    $num2 = $_POST['num2'] ?? "";
+    $op   = $_POST['operator'] ?? "";
 
-    switch ($operation) {
+    if ($num1 === "" || $num2 === "" || $op === "") {
+        $result = "Please complete the calculation";
+    } else {
 
-        case "add":
-            $result = $num1 + $num2;
-            break;
-
-        case "subtract":
-            $result = $num1 - $num2;
-            break;
-
-        case "multiply":
-            $result = $num1 * $num2;
-            break;
-
-        case "divide":
-            if ($num2 != 0) {
-                $result = $num1 / $num2;
-            } else {
-                $result = "Cannot divide by zero!";
-            }
-            break;
+        switch ($op) {
+            case "+":
+                $result = $num1 + $num2;
+                break;
+            case "-":
+                $result = $num1 - $num2;
+                break;
+            case "*":
+                $result = $num1 * $num2;
+                break;
+            case "/":
+                $result = ($num2 == 0) ? "Cannot divide by zero" : $num1 / $num2;
+                break;
+            default:
+                $result = "Invalid operation";
+        }
     }
 }
 ?>
@@ -36,83 +34,103 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <!DOCTYPE html>
 <html>
 <head>
-    <title>PHP Calculator</title>
+    <title>Calculator</title>
 
     <style>
-        body{
-            font-family: Arial, sans-serif;
-            background:#f4f4f4;
-            display:flex;
-            justify-content:center;
-            align-items:center;
-            height:100vh;
+        body {
+            background: #111;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: Arial;
         }
 
-        .calculator{
-            background:white;
-            padding:30px;
-            border-radius:10px;
-            box-shadow:0 0 15px rgba(0,0,0,0.2);
-            width:350px;
-            text-align:center;
+        .calc {
+            width: 320px;
+            background: #222;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
         }
 
-        input, select{
-            width:100%;
-            padding:10px;
-            margin:10px 0;
-            font-size:16px;
+        .screen {
+            width: 100%;
+            height: 60px;
+            background: #000;
+            color: #0f0;
+            font-size: 24px;
+            text-align: right;
+            padding: 10px;
+            box-sizing: border-box;
+            margin-bottom: 10px;
         }
 
-        button{
-            width:100%;
-            padding:12px;
-            background:#007bff;
-            color:white;
-            border:none;
-            border-radius:5px;
-            cursor:pointer;
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            font-size: 18px;
         }
 
-        button:hover{
-            background:#0056b3;
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 10px;
         }
 
-        .result{
-            margin-top:20px;
-            font-size:20px;
-            font-weight:bold;
+        button {
+            padding: 15px;
+            font-size: 18px;
+            border: none;
+            cursor: pointer;
+            border-radius: 8px;
+            background: #333;
+            color: white;
+        }
+
+        button:hover {
+            background: #555;
+        }
+
+        .equal {
+            background: #28a745;
+            grid-column: span 4;
+        }
+
+        .result {
+            margin-top: 10px;
+            color: #fff;
+            text-align: center;
+            font-size: 20px;
         }
     </style>
-
 </head>
 
 <body>
 
-<div class="calculator">
+<div class="calc">
 
-<h2>PHP Calculator</h2>
+    <form method="POST">
 
-<form method="post">
+        <input type="number" name="num1" placeholder="First number" required>
+        <input type="number" name="num2" placeholder="Second number" required>
 
-<input type="number" name="num1" placeholder="First Number" required>
+        <div class="buttons">
+            <button type="submit" name="operator" value="+">+</button>
+            <button type="submit" name="operator" value="-">-</button>
+            <button type="submit" name="operator" value="*">*</button>
+            <button type="submit" name="operator" value="/">/</button>
 
-<select name="operation">
-    <option value="add">Addition (+)</option>
-    <option value="subtract">Subtraction (-)</option>
-    <option value="multiply">Multiplication (*)</option>
-    <option value="divide">Division (/)</option>
-</select>
+            <button type="submit" class="equal">= Calculate</button>
+        </div>
 
-<input type="number" name="num2" placeholder="Second Number" required>
+    </form>
 
-<button type="submit">Calculate</button>
-
-</form>
-
-<div class="result">
-Result: <?php echo $result; ?>
-</div>
+    <div class="result">
+        <?php echo $result; ?>
+    </div>
 
 </div>
 
