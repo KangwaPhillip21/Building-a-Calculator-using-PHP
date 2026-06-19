@@ -1,4 +1,10 @@
 <?php
+session_start();
+
+if (!isset($_SESSION['history'])) {
+    $_SESSION['history'] = [];
+}
+
 $result = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -27,14 +33,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             default:
                 $result = "Invalid operation";
         }
+
+        // Save to history ONLY if result is valid number
+        if (is_numeric($result)) {
+            $record = "$num1 $op $num2 = $result";
+            array_unshift($_SESSION['history'], $record);
+        }
     }
+}
+
+// Clear history
+if (isset($_POST['clear'])) {
+    $_SESSION['history'] = [];
 }
 ?>
 
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Calculator</title>
+    <title>Calculator with History</title>
 
     <style>
         body {
@@ -47,30 +64,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         .calc {
-            width: 320px;
+            width: 350px;
             background: #222;
             padding: 20px;
             border-radius: 15px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
-        }
-
-        .screen {
-            width: 100%;
-            height: 60px;
-            background: #000;
-            color: #0f0;
-            font-size: 24px;
-            text-align: right;
-            padding: 10px;
-            box-sizing: border-box;
-            margin-bottom: 10px;
+            color: white;
         }
 
         input {
             width: 100%;
             padding: 10px;
             margin: 5px 0;
-            font-size: 18px;
+            font-size: 16px;
         }
 
         .buttons {
@@ -81,8 +86,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         button {
-            padding: 15px;
-            font-size: 18px;
+            padding: 12px;
             border: none;
             cursor: pointer;
             border-radius: 8px;
@@ -101,9 +105,33 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         .result {
             margin-top: 10px;
-            color: #fff;
             text-align: center;
-            font-size: 20px;
+            font-size: 18px;
+            color: #0f0;
+        }
+
+        .history {
+            margin-top: 15px;
+            background: #000;
+            padding: 10px;
+            border-radius: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .history h3 {
+            margin: 0 0 10px 0;
+        }
+
+        .history p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+
+        .clear-btn {
+            width: 100%;
+            margin-top: 10px;
+            background: red;
         }
     </style>
 </head>
@@ -130,6 +158,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     <div class="result">
         <?php echo $result; ?>
+    </div>
+
+    <div class="history">
+        <h3>History</h3>
+
+        <?php
+        if (empty($_SESSION['history'])) {
+            echo "<p>No calculations yet</p>";
+        } else {
+            foreach ($_SESSION['history'] as $item) {
+                echo "<p>$item</p>";
+            }
+        }
+        ?>
+
+        <form method="POST">
+            <button type="submit" name="clear" class="clear-btn">Clear History</button>
+        </form>
     </div>
 
 </div>
